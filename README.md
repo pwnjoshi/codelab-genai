@@ -1,6 +1,6 @@
 # Project Name
 
-Welcome to the **Project Name** repository!
+Welcome to the **Infotor GEN AI** repository!
 
 ## Description
 
