@@ -1,8 +1,11 @@
+package main
+
 import (
 	"context"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"cloud.google.com/go/compute/metadata"
 	"cloud.google.com/go/vertexai/genai"
@@ -34,10 +37,10 @@ func main() {
 			animal = "dog"
 		}
 
+		prompt := fmt.Sprintf("List 10 fun facts about %s in HTML format without markdown backticks.", animal)
 		resp, err := model.GenerateContent(
 			ctx,
-			genai.Text(
-				fmt.Sprintf("Give me 10 fun facts about %s. Return the results as HTML without markdown backticks.", animal)),
+			genai.Text(prompt),
 		)
 
 		if err != nil {
@@ -47,6 +50,10 @@ func main() {
 
 		if len(resp.Candidates) > 0 && len(resp.Candidates[0].Content.Parts) > 0 {
 			htmlContent := resp.Candidates[0].Content.Parts[0]
+			// Remove the prompt text from the output
+			htmlContent = strings.Replace(htmlContent, prompt, "", 1)
+			// Remove the trailing `%!s(MISSING)`
+			htmlContent = strings.TrimSuffix(htmlContent, "%!s(MISSING)")
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			fmt.Fprint(w, htmlContent)
 		}
